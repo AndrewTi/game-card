@@ -4,7 +4,7 @@
 
         let colors = () => {
             return arrColors;
-        }
+        };
 
         return {colors:colors};
     })();
@@ -12,7 +12,7 @@
     let logic = (() => {
 
         let arrColors = data.colors();
-        let cards = [];
+        let cards = [], attempts = 3, score = 0, select;
 
         /* REVELATION  FUNCTIONS */
 
@@ -50,15 +50,78 @@
             })
         };
 
+        let clearColors = () => {
+            cards.map((e) => {
+                e.elem.style.background = "#C7CED3";
+            })
+        };
+
+        let clearColor = (elem) => {
+            elem.elem.style.background = "#C7CED3";
+        };
+
+        let showColor = (elem) => {
+            elem.elem.style.background = elem.color;
+        };
+
+        let resetGame = () => {
+            score = 0;
+            attempts = 3;
+            select = null;
+            clearColors();
+            randomColor(0,16, arrColors.concat(arrColors));
+            events();
+        };
+
+        let checkElem = (elem) => {
+
+            if(select) {
+                if(select.elem === elem) {
+                    console.log("true");
+                    clearColor(select);
+                    select = null;
+                }else {
+                    let el = cards.find((e) => e.elem === elem);
+                    showColor(el);
+                    if(select.color === el.color) {
+                        score++;
+                        console.log(score);
+                        select.elem.removeEventListener("click", listener);
+                        el.elem.removeEventListener("click", listener);
+                        select = null;
+                    }else {
+                        clearColor(el);
+                        attempts--;
+                        if(attempts === 0) resetGame();
+                    }
+                }
+
+            }else {
+                select = cards.find((e) => e.elem === elem);
+                showColor(select);
+            }
+        };
+
+        let listener = (e) => {
+            checkElem(e.target);
+        };
+
+        let events = () => {
+            let arrE = getClass("item");
+
+            for(let i = 0, leng = arrE.length; i < leng; i++) {
+                arrE[i].addEventListener("click", listener);
+            }
+        };
+
         /* END REVELATION  FUNCTIONS */
 
         /* CALL FUNCTIONS */
 
         createCards(16);
-        randomColor(0,8, arrColors);
-        randomColor(8,16, arrColors);
+        randomColor(0,16, arrColors.concat(arrColors));
         setElem("item");
-        setColors();
+        events();
         
     })();
 })();
