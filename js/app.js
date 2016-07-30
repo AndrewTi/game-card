@@ -12,7 +12,7 @@
     let logic = (() => {
 
         let arrColors = data.colors();
-        let cards = [], attempts = 3, score = 0, select;
+        let cards = [], attempts = 3, score = 0, globalScore = 0, select, level = 1;
 
         /* REVELATION  FUNCTIONS */
 
@@ -44,7 +44,7 @@
             }
         };
 
-        let setColors = () => {
+        let showColors = () => {
             cards.map((e) => {
                 e.elem.style.background = e.color;
             })
@@ -64,43 +64,10 @@
             elem.elem.style.background = elem.color;
         };
 
-        let resetGame = () => {
-            score = 0;
-            attempts = 3;
-            select = null;
-            clearColors();
-            randomColor(0,16, arrColors.concat(arrColors));
-            events();
+        let showText = (id, text) => {
+            getId(id).textContent = text;
         };
 
-        let checkElem = (elem) => {
-
-            if(select) {
-                if(select.elem === elem) {
-                    console.log("true");
-                    clearColor(select);
-                    select = null;
-                }else {
-                    let el = cards.find((e) => e.elem === elem);
-                    showColor(el);
-                    if(select.color === el.color) {
-                        score++;
-                        console.log(score);
-                        select.elem.removeEventListener("click", listener);
-                        el.elem.removeEventListener("click", listener);
-                        select = null;
-                    }else {
-                        clearColor(el);
-                        attempts--;
-                        if(attempts === 0) resetGame();
-                    }
-                }
-
-            }else {
-                select = cards.find((e) => e.elem === elem);
-                showColor(select);
-            }
-        };
 
         let listener = (e) => {
             checkElem(e.target);
@@ -114,14 +81,77 @@
             }
         };
 
+        let resetGame = () => {
+            score = 0;
+            globalScore = 0;
+            attempts = 3;
+            level = 1;
+            select = null;
+            randomColor(0,16, arrColors.concat(arrColors));
+            showColors();
+            showText("attempts", "ATTEMPTS: "+attempts);
+            showText("score", "SCORE: "+globalScore);
+            showText("level", "LEVEL: "+level);
+            setTimeout(() => {
+                clearColors();
+                events();
+            },3000);
+        };
+
+        let startGame = () => {
+            score = 0;
+            randomColor(0,16, arrColors.concat(arrColors));
+            showText("level", "LEVEL: "+level);
+            showColors();
+            setTimeout(() => {
+                clearColors();
+                events();
+            },3000);
+            
+        };
+
+        let checkElem = (elem) => {
+
+            if(select) {
+                if(select.elem === elem) {
+                    clearColor(select);
+                    select = null;
+                }else {
+                    let el = cards.find((e) => e.elem === elem);
+                    showColor(el);
+                    if(select.color === el.color) {
+                        score++;
+                        globalScore++;
+                        showText("score", "SCORE: "+globalScore);
+                        select.elem.removeEventListener("click", listener);
+                        el.elem.removeEventListener("click", listener);
+                        select = null;
+                        if(score === 8) {
+                            level++;
+                            startGame();
+                        }
+                    }else {
+                        clearColor(el);
+                        attempts--;
+                        showText("attempts", "ATTEMPTS: "+attempts);
+                        if(attempts === 0) resetGame();
+                    }
+                }
+
+            }else {
+                select = cards.find((e) => e.elem === elem);
+                showColor(select);
+            }
+        };
+
         /* END REVELATION  FUNCTIONS */
 
         /* CALL FUNCTIONS */
 
         createCards(16);
-        randomColor(0,16, arrColors.concat(arrColors));
         setElem("item");
-        events();
+        getId("start").addEventListener("click", startGame);
+
         
     })();
 })();

@@ -41,4 +41,16 @@ h2 {
     width: 195px;
     height: 100%;
     float: right;
+    text-align: center;
+}
+
+#start {
+    width: 150px;
+    height: 35px;
+    margin-top: calc(130px - 17.5px);
+    background: #01A1DB;
+}
+
+#start:hover {
+    cursor: pointer;
 }
